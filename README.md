@@ -265,3 +265,11 @@ def DFS(versina,depth):
 depths = [0]*n
 DFS(0,0)
 ```
+
+#### Интересный способ считывания данных для каждой вершины (берём и записываем для вершины i её детей) (из задачи 3.2)
+```python
+# Чтение списка детей для каждой вершины
+    # children[i] содержит кортеж (left_child, right_child) для вершины i
+    # Если left_child или right_child равен -1, это означает, что ребёнок отсутствует
+    children = [tuple(map(int, sys.stdin.readline().split())) for _ in range(n)]
+```
