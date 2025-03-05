@@ -78,6 +78,7 @@ def main():
         undirected[parent].append(i)  # Добавляем ребро parent ↔ i в неориентированный граф
         undirected[i].append(parent)  # Добавляем обратное ребро i ↔ parent
 
+    print(undirected)
     # Функция для вычисления глубин вершин с помощью DFS
     depths = [0] * n  # Массив для хранения глубин вершин
 
