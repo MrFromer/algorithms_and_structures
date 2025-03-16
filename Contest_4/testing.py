@@ -1,27 +1,30 @@
 import sys
 
-# Чтение данных
-n = int(sys.stdin.readline())
-arr = list(map(int, sys.stdin.readline().split()))
-m = int(sys.stdin.readline())
+n, k = [int(x) for x in sys.stdin.readline().split()]
+mass = [int(x) for x in sys.stdin.readline().split()]
 
-# Префиксные суммы и префиксные XOR
-prefix_sum = [0] * (n + 1)
-prefix_xor = [0] * (n + 1)
+def greedy_alg(mass, k, mid):
+    count = 0
+    summ = 0
+    for i in range(n):
+        if (summ + mass[i]) > mid:  # Если текущая сумма превышает mid
+            count += 1  # Начинаем новый отрезок
+            summ = mass[i]  # Сбрасываем сумму и начинаем новый отрезок с текущего элемента
+        else:
+            summ += mass[i]  # Продолжаем текущий отрезок
+    if summ > 0:  # Учитываем последний отрезок
+        count += 1
+    return count <= k  # Возвращаем True, если количество отрезков не превышает k
 
-for i in range(1, n + 1):
-    prefix_sum[i] = prefix_sum[i - 1] + arr[i - 1]
-    prefix_xor[i] = prefix_xor[i - 1] ^ arr[i - 1]
+def binary_search(mass):
+    left = max(mass)  # Минимальная возможная сумма (максимальный элемент)
+    right = sum(mass)  # Максимальная возможная сумма (сумма всех элементов)
+    while left <= right:
+        mid = (left + right) // 2
+        if greedy_alg(mass, k, mid):  # Если можно разбить на k отрезков с суммой <= mid
+            right = mid - 1  # Пробуем уменьшить сумму
+        else:
+            left = mid + 1  # Увеличиваем сумму
+    return left  # Возвращаем минимальную максимальную сумму
 
-# Обработка запросов
-output = []
-for _ in range(m):
-    q, l, r = map(int, sys.stdin.readline().split())
-    if q == 1:  # Запрос суммы
-        result = prefix_sum[r] - prefix_sum[l - 1]
-    else:  # Запрос XOR
-        result = prefix_xor[r] ^ prefix_xor[l - 1]
-    output.append(str(result))
-
-# Вывод всех результатов
-print('\n'.join(output))
+print(binary_search(mass))
