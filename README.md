@@ -530,3 +530,74 @@ for request in requests:
         print('No')  # Подстроки не равны
 
 ```
+
+### 15. Поиск подстрок в строке (из задачи 5.2)
+Основная идея в заранее посчитанных префиксах у каждого элемента подстрок.
+Т.е мы проходимся по подстрокам и для каждого элемента ищем количество вхождений ранее и если элементы равны к текущему префиксу добавляем +1, если не равны откатываемся назад на уже ранее посчитанный префикс и так считаем для каждого элемента количество совпадений (длину) относительно строки с которой мы сравниваем 
+1. Префиксная функция:
+Для подстроки si вычисляем массив pi, где pi[i] — длина наибольшего префикса si[0..i], который является её суффиксом.
+Пример для si = "abab": pi = [0, 0, 1, 2]
+2. Поиск вхождений:
+Проходим по строке T и сравниваем символы с подстрокой si.
+Если символы совпадают, увеличиваем счётчик совпадений.
+Если символы не совпадают, откатываемся назад, используя префиксную функцию.
+Если найдено полное совпадение, сохраняем индекс начала вхождения
+3. Обработка запросов:
+Если длина si больше длины T, вхождений нет.
+Если длина si равна длине T, проверяем, совпадают ли строки.
+Иначе используем KMP для поиска всех вхождений.
+```python
+def prefix_function(s):
+    m = len(s)
+    pi = [0] * m
+    j = 0
+    for i in range(1, m):
+        while j > 0 and s[i] != s[j]:
+            j = pi[j - 1]
+        if s[i] == s[j]:
+            j += 1
+        pi[i] = j
+    return pi
+
+def kmp_search(text, pattern, pi):
+    n = len(text)
+    m = len(pattern)
+    j = 0
+    occurrences = []
+    for i in range(n):
+        while j > 0 and text[i] != pattern[j]:
+            j = pi[j - 1]
+        if text[i] == pattern[j]:
+            j += 1
+        if j == m:
+            occurrences.append(i - m + 1)
+            j = pi[j - 1]
+    return occurrences
+
+def main():
+    T = input().strip()
+    q = int(input())
+    for _ in range(q):
+        si = input().strip()
+        m = len(si)
+        n = len(T)
+        if m > n:
+            print(0)
+            continue
+        if m == n:
+            if si == T:
+                print(1, 0)
+            else:
+                print(0)
+            continue
+        pi = prefix_function(si)
+        occurrences = kmp_search(T, si, pi)
+        print(len(occurrences), end='')
+        if occurrences:
+            print(' ' + ' '.join(map(str, occurrences)), end='')
+        print()
+
+if __name__ == "__main__":
+    main()
+
+```
