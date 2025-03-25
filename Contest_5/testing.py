@@ -1,49 +1,64 @@
-MOD1 = 10**18 + 3
-BASE1 = 911382629
-MOD2 = 10**9 + 7
-BASE2 = 35714285
+p = input().strip()
+t = input().strip()
+new_str = p + '#' + t
 
-a = input().strip()
-b = input().strip()
+n_p = len(p)
+n_t = len(t)
+new_n = len(new_str)
 
-n = len(b)
-m = len(a)
+z = [0] * new_n
 
-if n == 0 or m < n:
-    print(0)
-    exit()
+l = 0
+r = 0
 
-max_len = max(2 * n, m)
-pow_base1 = [1] * (max_len + 1)
-pow_base2 = [1] * (max_len + 1)
-for i in range(1, max_len + 1):
-    pow_base1[i] = (pow_base1[i-1] * BASE1) % MOD1
-    pow_base2[i] = (pow_base2[i-1] * BASE2) % MOD2
+# Вычисление Z-функции
+for i in range(1, new_n):
+    if i <= r:
+        z[i] = min(z[i - l], r - i + 1)
+    
+    while i + z[i] < new_n and new_str[z[i]] == new_str[i + z[i]]:
+        z[i] += 1
 
-def compute_prefix_hashes(s, base, mod):
-    prefix = [0] * (len(s) + 1)
-    for i in range(len(s)):
-        prefix[i+1] = (prefix[i] * base + ord(s[i])) % mod
-    return prefix
-
-c = b + b
-hash_c1 = compute_prefix_hashes(c, BASE1, MOD1)
-hash_c2 = compute_prefix_hashes(c, BASE2, MOD2)
-
-cyclic_hashes = set()
-for k in range(n):
-    h1 = (hash_c1[k + n] - hash_c1[k] * pow_base1[n]) % MOD1
-    h2 = (hash_c2[k + n] - hash_c2[k] * pow_base2[n]) % MOD2
-    cyclic_hashes.add((h1, h2))
-
-hash_a1 = compute_prefix_hashes(a, BASE1, MOD1)
-hash_a2 = compute_prefix_hashes(a, BASE2, MOD2)
+    if i + z[i] - 1 > r:
+        l = i
+        r = i + z[i] - 1
 
 count = 0
-for i in range(m - n + 1):
-    h1 = (hash_a1[i + n] - hash_a1[i] * pow_base1[n]) % MOD1
-    h2 = (hash_a2[i + n] - hash_a2[i] * pow_base2[n]) % MOD2
-    if (h1, h2) in cyclic_hashes:
-        count += 1
+vjozdenia = []
 
-print(count)
+for i in range(n_p + 1, new_n):
+    pos_in_t = i - n_p - 1  # Позиция в строке t
+    if pos_in_t < 0:
+        continue  # Пропускаем некорректные позиции
+    
+    # Полное совпадение
+    if z[i] == n_p:
+        count += 1
+        vjozdenia.append(pos_in_t + 1)  # +1 для нумерации с 1
+    
+    # Проверка на одно несовпадение
+    elif z[i] >= n_p - 1:
+        # Проверяем только потенциальные проблемные места
+        # (не проверяем уже совпавшие символы)
+        mismatches = 0
+        # Проверяем символы после совпавшего префикса
+        for j in range(z[i], n_p):
+            if pos_in_t + j >= n_t:  # Проверка выхода за границы
+                break
+            if t[pos_in_t + j] != p[j]:
+                mismatches += 1
+                if mismatches > 1:
+                    break
+        # Проверяем возможную ошибку в начале
+        if mismatches <= 1:
+            count += 1
+            vjozdenia.append(pos_in_t + 1)
+
+# Удаляем дубликаты и сортируем
+vjozdenia = sorted(list(set(vjozdenia)))
+
+print(len(vjozdenia))
+if vjozdenia:
+    print(' '.join(map(str, vjozdenia)))
+else:
+    print()
