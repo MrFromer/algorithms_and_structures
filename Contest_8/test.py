@@ -1,101 +1,76 @@
 import sys
+input = sys.stdin.readline
 
 def main():
-    data = sys.stdin.read().split()
-    ptr = 0
-    n = int(data[ptr])
-    ptr += 1
-    m = int(data[ptr])
-    ptr += 1
-    arr = list(map(int, data[ptr:ptr+n]))
-    ptr += n
-
-    # Инициализация дерева
+    n, m = map(int, input().split())
+    arr = list(map(int, input().split()))
     size = 1
     while size < n:
         size <<= 1
-    tree = [(float('inf'), 0)] * (2 * size)
-
-    # Заполнение листьев
-    for i in range(n):
-        tree[size + i] = (arr[i], 1)
+    tree = [-1] * (2 * size)
     
-    # Инициализация внутренних узлов
+    # Построение дерева
+    for i in range(n):
+        tree[size + i] = arr[i]
     for i in range(size - 1, 0, -1):
-        left = tree[2*i]
-        right = tree[2*i+1]
-        if left[0] < right[0]:
-            tree[i] = left
-        elif left[0] > right[0]:
-            tree[i] = right
-        else:
-            tree[i] = (left[0], left[1] + right[1])
-
-    output = []
-    for _ in range(m):
-        cmd = data[ptr]
-        ptr += 1
-        
-        if cmd == '1':
-            # Обновление элемента
-            pos = int(data[ptr]) + size
-            ptr += 1
-            val = int(data[ptr])
-            ptr += 1
-            
-            # Обновляем лист
-            tree[pos] = (val, 1)
+        tree[i] = max(tree[2 * i], tree[2 * i + 1])
+    
+    # Обновление элемента
+    def update(pos, val):
+        pos += size
+        tree[pos] = val
+        pos >>= 1
+        while pos >= 1:
+            new_val = max(tree[2 * pos], tree[2 * pos + 1])
+            if tree[pos] == new_val:
+                break
+            tree[pos] = new_val
             pos >>= 1
-            
-            # Поднимаемся к корню
-            while pos > 0:
-                left = tree[2*pos]
-                right = tree[2*pos+1]
-                if left[0] < right[0]:
-                    new = left
-                elif left[0] > right[0]:
-                    new = right
+    
+    # Поиск первого элемента > x после l
+    def query(x, l):
+        res = -1
+        # Начинаем с правого конца
+        left = l + 1
+        right = n - 1
+        if left > right:
+            return -1
+        
+        left += size
+        right += size
+        candidates = []
+        
+        while left <= right:
+            if left % 2 == 1:
+                candidates.append(left)
+                left += 1
+            if right % 2 == 0:
+                candidates.append(right)
+                right -= 1
+            left >>= 1
+            right >>= 1
+        
+        for node in candidates:
+            current = node
+            while current < size:
+                if tree[2 * current] > x:
+                    current = 2 * current
                 else:
-                    new = (left[0], left[1] + right[1])
-                
-                if tree[pos] == new:
-                    break
-                tree[pos] = new
-                pos >>= 1
-                
-        elif cmd == '2':
-            # Запрос минимума
-            l = int(data[ptr])
-            ptr += 1
-            r = int(data[ptr]) - 1  # Преобразуем [l, r) в [l, r-1]
-            ptr += 1
-            
-            res_min = float('inf')
-            res_cnt = 0
-            l += size
-            r += size
-            
-            while l <= r:
-                if l % 2 == 1:
-                    current = tree[l]
-                    if current[0] < res_min:
-                        res_min, res_cnt = current
-                    elif current[0] == res_min:
-                        res_cnt += current[1]
-                    l += 1
-                if r % 2 == 0:
-                    current = tree[r]
-                    if current[0] < res_min:
-                        res_min, res_cnt = current
-                    elif current[0] == res_min:
-                        res_cnt += current[1]
-                    r -= 1
-                l >>= 1
-                r >>= 1
-                
-            output.append(f"{res_min} {res_cnt}")
+                    current = 2 * current + 1
+            idx = current - size
+            if idx <= n - 1 and tree[current] > x:
+                if res == -1 or idx < res:
+                    res = idx
+        return res if res != -1 else -1
+    
+    for _ in range(m):
+        parts = list(map(int, input().split()))
+        if parts[0] == 1:
+            i, v = parts[1], parts[2]
+            update(i, v)
+        else:
+            x, l = parts[1], parts[2]
+            print(query(x, l))
 
-    sys.stdout.write('\n'.join(output) + '\n')
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -118,79 +118,79 @@ for _ in range(m):
 
 
 #оптимизированная версия
-import sys
+# import sys
 
-# Чтение всех данных сразу
-data = sys.stdin.read().split()
-ptr = 0
+# # Чтение всех данных сразу
+# data = sys.stdin.read().split()
+# ptr = 0
 
-n = int(data[ptr])
-ptr += 1
-m = int(data[ptr])
-ptr += 1
+# n = int(data[ptr])
+# ptr += 1
+# m = int(data[ptr])
+# ptr += 1
 
-logs = list(map(int, data[ptr:ptr + n]))
-ptr += n
+# logs = list(map(int, data[ptr:ptr + n]))
+# ptr += n
 
-# Инициализация дерева отрезков
-size = 1
-while size < n:
-    size <<= 1
-tree = [0] * (2 * size)
+# # Инициализация дерева отрезков
+# size = 1
+# while size < n:
+#     size <<= 1
+# tree = [0] * (2 * size)
 
-# Построение дерева (итеративно)
-for i in range(n):
-    tree[size + i] = logs[i]
-for i in range(size - 1, 0, -1):
-    tree[i] = tree[2 * i] + tree[2 * i + 1]
+# # Построение дерева (итеративно)
+# for i in range(n):
+#     tree[size + i] = logs[i]
+# for i in range(size - 1, 0, -1):
+#     tree[i] = tree[2 * i] + tree[2 * i + 1]
 
-# Обработка запросов
-output = []
-for _ in range(m):
-    cmd = data[ptr]
-    ptr += 1
+# # Обработка запросов
+# output = []
+# for _ in range(m):
+#     cmd = data[ptr]
+#     ptr += 1
     
-    if cmd == '1':
-        # Обновление элемента
-        pos = int(data[ptr])
-        ptr += 1
-        val = int(data[ptr])
-        ptr += 1
+#     if cmd == '1':
+#         # Обновление элемента
+#         pos = int(data[ptr])
+#         ptr += 1
+#         val = int(data[ptr])
+#         ptr += 1
         
-        # Обновляем лист
-        pos += size
-        tree[pos] = val
-        # Поднимаемся к корню
-        pos >>= 1
-        while pos >= 1:
-            new_val = tree[2 * pos] + tree[2 * pos + 1]
-            if tree[pos] == new_val:
-                break
-            tree[pos] = new_val
-            pos >>= 1
+#         # Обновляем лист
+#         pos += size
+#         tree[pos] = val
+#         # Поднимаемся к корню
+#         pos >>= 1
+#         while pos >= 1:
+#             new_val = tree[2 * pos] + tree[2 * pos + 1]
+#             if tree[pos] == new_val:
+#                 break
+#             tree[pos] = new_val
+#             pos >>= 1
             
-    elif cmd == '2':
-        # Запрос суммы [l, r)
-        l = int(data[ptr])
-        ptr += 1
-        r = int(data[ptr])
-        ptr += 1
-        res = 0
+#     elif cmd == '2':
+#         # Запрос суммы [l, r)
+#         l = int(data[ptr])
+#         ptr += 1
+#         r = int(data[ptr])
+#         ptr += 1
+#         res = 0
         
-        l += size
-        r += size - 1  # Преобразуем [l, r) в [l, r-1]
+#         l += size
+#         r += size - 1  # Преобразуем [l, r) в [l, r-1]
         
-        while l <= r:
-            if l % 2 == 1:
-                res += tree[l]
-                l += 1
-            if r % 2 == 0:
-                res += tree[r]
-                r -= 1
-            l >>= 1
-            r >>= 1
+#         while l <= r:
+#             if l % 2 == 1:
+#                 res += tree[l]
+#                 l += 1
+#             if r % 2 == 0:
+#                 res += tree[r]
+#                 r -= 1
+#             l >>= 1
+#             r >>= 1
             
-        output.append(str(res))
+#         output.append(str(res))
 
-# Вывод всех результатов
-print('\n'.join(output))
+# # Вывод всех результатов
+# print('\n'.join(output))
